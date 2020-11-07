@@ -17,7 +17,6 @@ using namespace std;
 class Matrix {
 public:
     vector<vector<double>> matr;
-    vector<vector<double>> lu;
 
     vector<double >& operator [](int ind);
     Matrix operator * (Matrix x);
@@ -29,6 +28,8 @@ public:
     friend istream& operator >> (istream &in, Matrix &x);
     double inline scalar(vector<double> &a, vector<double> &b);
     Matrix transpon();
+    vector<double> getTailColumn(int i, int s);
+    void QR(Matrix &Q, Matrix &R);
 
 
     Matrix getHouseholder();
@@ -40,6 +41,9 @@ public:
     double calculateNorm();
 
 
+    static double norm(const vector<double>& column);
+
+    bool checkEnd();
 };
 
 

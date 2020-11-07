@@ -119,10 +119,10 @@ double inline Matrix::scalar(vector<double> &a, vector<double> &b) {
 
 Matrix Matrix::transpon() {
     Matrix t;
-    long size = matr.size();
-    t.matr.assign(size, vector<double>(size));
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
+    long h = matr.size(), w = matr[0].size();
+    t.matr.assign(w, vector<double>(h));
+    for (int i = 0; i < w; i++) {
+        for (int j = 0; j < h; j++) {
             t.matr[i][j] = matr[j][i];
         }
     }
@@ -139,8 +139,19 @@ Matrix Matrix::getHouseholder() {
     Matrix tempA = *this;
     Matrix resU = E;
     Matrix w;
-//    w.matr.resize(n, vector<double>(1, 0));
     for (int i = 0; i < n - 2; i++) {
+        w.matr.resize(n, vector<double>(1, 0));
+        int rowI = i + 1;
+        double s = sign(tempA[rowI][i]) * norm(tempA.getTailColumn(i, rowI));
+        double alpha = 1.0 / sqrt(2 * s * (s - tempA[rowI][i]));
+        w[rowI][0] = alpha * (tempA[rowI][i] - s);
+        for (int j = rowI + 1; j < n; ++j)
+            w[j][0] = alpha * tempA[j][i];
+        auto U = E - w * w.transpon() * 2;
+        resU = resU * U;
+        tempA = U * tempA * U;
+    }
+    /*for (int i = 0; i < n - 2; i++) {
         w.matr.resize(n, vector<double>(1, 0));
         int rowI = i + 1;
         float s = sign(tempA[rowI][i]) * tempA.col(i).tail(n - rowI).norm();
@@ -151,11 +162,8 @@ Matrix Matrix::getHouseholder() {
         auto U = E - 2 * w * w.transpose();
         resU = resU * U;
         tempA = U * tempA * U;
-    }
+    }*/
     return resU;
-
-
-    return Matrix();
 }
 
 Matrix Matrix::operator/(double n) {
@@ -172,4 +180,52 @@ Matrix Matrix::operator*(double x) {
         for (int j = 0; j < matr[i].size(); j++)
             res[i][j] *= x;
     return res;
+}
+
+vector<double> Matrix::getTailColumn(int i, int s) {
+    vector<double> result;
+    for (int j = s; j < matr.size(); j++)
+        result.push_back(matr[j][i]);
+    return result;
+}
+
+double Matrix::norm(const vector<double>& column) {
+    double sum = 0;
+    for (double i: column)
+        sum += i * i;
+    return sqrt(sum);
+}
+
+void Matrix::QR(Matrix &Q, Matrix &R) {
+    int n = matr.size();
+    Matrix E;
+    E.matr.resize(matr.size(), vector<double>(matr.size()));
+    for (int i = 0; i < matr.size(); i++)
+        E[i][i] = 1;
+    
+    R = *this;
+    Q = E;
+    for (int i = 0; i < n - 1; ++i) {
+        int nextI = i + 1;
+        double tau = atan(R[i][i] / R[nextI][i]);
+        double a = sin(tau), b = cos(tau);
+        for (int j = 0; j < n; j++) {
+            auto firstR = R[i][j] * a + R[nextI][j] * b;
+            auto secondR = -1 * R[i][j] * b + R[nextI][j] * a;
+            auto firstQ = Q[j][i] * a + Q[j][nextI] * b;
+            auto secondQ = -1 * Q[j][i] * b + Q[j][nextI] * a;
+            R[i][j] = firstR;
+            R[nextI][j] = secondR;
+            Q[j][i] = firstQ;
+            Q[j][nextI] = secondQ;
+        }
+    }
+}
+
+bool Matrix::checkEnd() {
+    auto n = matr.size();
+    for (int j = 0; j < n - 1; ++j)
+        if (fabs(matr[j + 1][j]) >= 0.0001)
+            return false;
+    return true;
 }

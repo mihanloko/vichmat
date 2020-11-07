@@ -18,6 +18,15 @@ int main() {
 
     vector<float> numbers;
     vector<Matrix> vectors;
+    Matrix U = a.getHouseholder();
+    Matrix B = U.transpon() * a * U;
+    Matrix tempA = B;
+    Matrix Q, R;
+    while (tempA.checkEnd()) {
+        tempA.QR(Q, R);
+        tempA = R * Q;
+//        i++;
+    }
 //    a.getAll(eps, numbers, vectors);
 
     for (int i = 0; i < numbers.size(); i++) {

@@ -1,4 +1,5 @@
 /**/.idea/*
 /**/cmake-build-debug/*
+/**/venv/*
 !/**/cmake-build-debug/test.txt
 !/**/cmake-build-debug/input.txt
