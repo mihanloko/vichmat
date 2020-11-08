@@ -1,20 +1,18 @@
 #include <iostream>
 #include <fstream>
+#include <ctime>
 #include "Matrix.h"
 
 using namespace std;
 
 int main() {
+    srand(time(NULL));
     ifstream in("input.txt");
     ofstream out("output.txt");
     Matrix a;
     in >> a;
     float eps;
     in >> eps;
-    Matrix E;
-    E.matr.resize(a.matr.size(), vector<double>(a.matr.size()));
-    for (int i = 0; i < a.matr.size(); i++)
-        E[i][i] = 1;
 
     vector<float> numbers;
     vector<Matrix> vectors;
@@ -22,21 +20,25 @@ int main() {
     Matrix B = U.transpon() * a * U;
     Matrix tempA = B;
     Matrix Q, R;
-    while (!tempA.checkEnd()) {
+    int iterCount = 0;
+    while (!tempA.checkEnd(eps)) {
         tempA.QR(Q, R);
-//        cout << Q << endl << R << endl;
         tempA = R * Q;
-//        i++;
+        iterCount++;
     }
-    cout << tempA << endl;
-//    a.getAll(eps, numbers, vectors);
 
-    /*for (int i = 0; i < numbers.size(); i++) {
-        out << "Собственное число " << numbers[i] << endl;
-        out << "Собственный вектор\n" << vectors[i];
-        out << "Невязка\n" << a * vectors[i] - vectors[i] * numbers[i] << endl << endl;
-    }*/
-
+    out << "Исходная матрица:\n" << a << endl;
+    Matrix E;
+    E.matr.resize(a.matr.size(), vector<double>(a.matr.size()));
+    for (int i = 0; i < a.matr.size(); i++)
+        E[i][i] = 1;
+    for (int i = 0; i < a.matr.size(); i++) {
+        out << "Собственное число " << tempA[i][i] << endl;
+        Matrix ownVector = (B - E * tempA[i][i]).getX(eps);
+        ownVector = U * ownVector;
+        out << "Собственный вектор:\n" << ownVector;
+        out << "Невязка:\n" << (a * ownVector) - (ownVector * tempA[i][i]);
+    }
 
     return 0;
 }

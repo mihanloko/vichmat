@@ -9,6 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <random>
 
 #define initial 1
 
@@ -42,8 +43,13 @@ public:
 
 
     static double norm(const vector<double>& column);
+    double norm();
 
-    bool checkEnd();
+    bool checkEnd(double eps);
+
+    Matrix getX(double eps);
+
+    void normalize();
 };
 
 

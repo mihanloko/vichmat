@@ -21,7 +21,7 @@ vector<double> &Matrix::operator[](int ind) {
     return matr[ind];
 }
 
-ostream& operator<<(ostream &out, const Matrix &x) {
+ostream &operator<<(ostream &out, const Matrix &x) {
     for (const vector<double> &v: x.matr) {
         for (double f : v) {
             out.width(15);
@@ -62,7 +62,7 @@ Matrix Matrix::operator-(Matrix x) {
     return result;
 }
 
-istream& operator>>(istream &in, Matrix &x) {
+istream &operator>>(istream &in, Matrix &x) {
     string str;
     getline(in, str);
     int row = 0;
@@ -110,7 +110,7 @@ vector<double> Matrix::operator*(vector<double> x) {
 }
 
 double inline Matrix::scalar(vector<double> &a, vector<double> &b) {
-    double  sum = 0;
+    double sum = 0;
     for (int i = 0; i < a.size(); i++) {
         sum += a[i] * b[i];
     }
@@ -189,7 +189,7 @@ vector<double> Matrix::getTailColumn(int i, int s) {
     return result;
 }
 
-double Matrix::norm(const vector<double>& column) {
+double Matrix::norm(const vector<double> &column) {
     double sum = 0;
     for (double i: column)
         sum += i * i;
@@ -202,7 +202,7 @@ void Matrix::QR(Matrix &Q, Matrix &R) {
     E.matr.resize(matr.size(), vector<double>(matr.size()));
     for (int i = 0; i < matr.size(); i++)
         E[i][i] = 1;
-    
+
     R = *this;
     Q = E;
     for (int i = 0; i < n - 1; ++i) {
@@ -222,10 +222,60 @@ void Matrix::QR(Matrix &Q, Matrix &R) {
     }
 }
 
-bool Matrix::checkEnd() {
+bool Matrix::checkEnd(double eps) {
     auto n = matr.size();
     for (int j = 0; j < n - 1; ++j)
-        if (fabs(matr[j + 1][j]) >= 0.0001)
+        if (fabs(matr[j + 1][j]) >= eps)
             return false;
     return true;
+}
+
+Matrix Matrix::getX(double eps) {
+    int n = matr.size();
+    Matrix X;
+    X.matr.assign(n, vector<double>(1, 0.5));
+    for (int i = 0; i < n; i++)
+        X[i][0] = (rand() % 2 ? 1 : -1) * (1.0 * (rand() % 1000 + 1)) / 1000;
+    Matrix Q, R;
+    QR(Q, R);
+//    Q.transposeInPlace();
+    Q = Q.transpon();
+    bool end = false;
+    int iter = 0;
+    while (!end && iter < 1000) {
+        Matrix B = Q * X;
+        Matrix nextX;
+        nextX.matr.assign(n, vector<double>(1, 1));
+        for (int i = n - 1; i > -1; i--) {
+            double sum = 0;
+            for (int j = i + 1; j < n; j++)
+                sum += R[i][j] * nextX[j][0];
+            nextX[i][0] = (B[i][0] - sum) / R[i][i];
+        }
+        nextX.normalize();
+        if (fabs(nextX.norm() - X.norm()) < eps)
+            end = true;
+        X = nextX;
+        iter++;
+    }
+    return X;
+}
+
+double Matrix::norm() {
+    double  sum = 0;
+    for (auto & i : matr) {
+        for (double j : i) {
+            sum += j * j;
+        }
+    }
+    return sqrt(sum);
+}
+
+void Matrix::normalize() {
+    double normValue = this->norm();
+    for (auto & i : matr) {
+        for (double &j : i) {
+            j /= normValue;
+        }
+    }
 }
