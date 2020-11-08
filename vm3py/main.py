@@ -31,9 +31,14 @@ def householder(a):
         w[row_i, 0] = alpha * (temp_aa[row_i, i] - s)
         for j in range(row_i + 1, n):
             w[j, 0] = alpha * temp_aa[j, i]
-        u = E - 2 * w * w.transpose()
-        res_u = res_u * u
-        temp_aa = u * temp_aa * u
+        u = E - 2 * np.dot(w, w.transpose())
+        # print(w)
+        # print(res_u)
+        # print(u)
+        res_u = np.dot(res_u, u)
+        temp_aa = np.dot(np.dot(u, temp_aa), u)
+        # print(res_u)
+        # print(u)
     return res_u
 
 
@@ -73,16 +78,19 @@ if __name__ == '__main__':
     # print(E)
     U = householder(A)
     # print(U)
-    B = U.transpose() * A * U
-    print(U)
-    print(B)
+    B = np.dot(np.dot(U.transpose(), A), U)
+    # print(U)
+    # print(A)
+    # print(B)
     temp_a = B
     iter_count = 0
     Q = None
     R = None
     while not check_end(temp_a):
         Q, R = QR(temp_a, Q, R)
-        temp_a = R * Q
+        # print(Q)
+        # print(R)
+        temp_a = np.dot(R, Q)
         iter_count += 1
     # print(iter_count)
-    # print(temp_a)
+    print(temp_a)

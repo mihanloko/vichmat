@@ -140,7 +140,7 @@ Matrix Matrix::getHouseholder() {
     Matrix resU = E;
     Matrix w;
     for (int i = 0; i < n - 2; i++) {
-        w.matr.resize(n, vector<double>(1, 0));
+        w.matr.assign(n, vector<double>(1, 0));
         int rowI = i + 1;
         double s = sign(tempA[rowI][i]) * norm(tempA.getTailColumn(i, rowI));
         double alpha = 1.0 / sqrt(2 * s * (s - tempA[rowI][i]));

@@ -22,18 +22,20 @@ int main() {
     Matrix B = U.transpon() * a * U;
     Matrix tempA = B;
     Matrix Q, R;
-    while (tempA.checkEnd()) {
+    while (!tempA.checkEnd()) {
         tempA.QR(Q, R);
+//        cout << Q << endl << R << endl;
         tempA = R * Q;
 //        i++;
     }
+    cout << tempA << endl;
 //    a.getAll(eps, numbers, vectors);
 
-    for (int i = 0; i < numbers.size(); i++) {
+    /*for (int i = 0; i < numbers.size(); i++) {
         out << "Собственное число " << numbers[i] << endl;
         out << "Собственный вектор\n" << vectors[i];
         out << "Невязка\n" << a * vectors[i] - vectors[i] * numbers[i] << endl << endl;
-    }
+    }*/
 
 
     return 0;
